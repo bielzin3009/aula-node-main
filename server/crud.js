@@ -1,7 +1,8 @@
+
 // CRUD
 // Criar
 // Read- Ler
-// Update - Atualiazar
+// Update - Atualizar
 // Delete
 
 // cadastro de alunos
@@ -29,20 +30,44 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.post("/cadastro", function(req, res) {
-    let sql = "INSERT INTO alunos (nome, email, cidade, idade)"
-            + "VALUES ('"+ req.body.nome +"', '"+ req.body.email +"', '"+ req.body.cidade +"', "+ req.body.idade +")";
+    let sql = "INSERT INTO alunos (nome, email, cidade, telefone, idade)"
+            + "VALUES ('"+ req.body.nome +"', '"
+            + req.body.email +"', '"
+            + req.body.cidade +"', '"
+            + req.body.telefone +"', "
+            + req.body.idade +")";
     
     db.exec(sql, function(erro) {
-         res.send("aluno adicionado");
+        if (erro)
+        {
+            res.status(500).json(sql);
+        } else{
+            res.send("aluno adicionado");
+        }
     })
         
 });
 
 app.get("/lista", function(req, res) {
-    console.log(req.query)
-    const sql = "SELECT * FROM alunos";
+    
+    let coluna = req.query.ordenar;
+
+    let sql = "";
+
+    if (coluna)
+    {
+        sql = "SELECT * FROM alunos ORDER BY " + coluna;
+    } else {
+        sql = "SELECT * FROM alunos ORDER BY id";
+    }
+
     db.all(sql, function(erro, linha) {
-        res.json(linha);
+        if(erro)
+        {
+            res.status(500).json(sql)
+        } else{
+            res.json(linha);
+        }
     })
 });
 
@@ -95,7 +120,7 @@ app.post("/delete", function(req, res){
     let sql =  "DELETE FROM alunos WHERE id = " + req.body.id;
     db.exec(sql, function(erro){
         if (erro) {
-            res.json(erro);
+            res.status(500).json(erro);
         } else {
             res.json("deletedo com sucesso");
         }
