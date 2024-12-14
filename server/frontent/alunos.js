@@ -16,7 +16,10 @@ $(document).ready(function(){
                     +"<td>"+ item.telefone +"</td>"
                     +"<td>"+ item.cidade +"</td>"
                     +"<td>"+ item.idade +"</td>"
-                    +'<td><button codigo="'+ item.id +'" class="bt-del btn btn-sm btn-outline-danger"> <i class="bi bi-trash"></i> </button></td>'
+                    +'<td>'
+                    +'<button codigo="'+ item.id +'" class="bt-del btn btn-sm btn-outline-danger"> <i class="bi bi-trash"></i> </button>'
+                    +'<button codigo="'+ item.id +'" class="bt-update btn btn-sm btn-outline-info ms-2"> <i class="bi bi-pencil-square"></i> </button>'
+                    +'</td>'
                     +"</tr>"
 
                 $("#lista-alunos").append(html);
@@ -45,15 +48,30 @@ $(document).ready(function(){
             idade: $("#idade").val()
         };
 
+        let codigo = $("#codigo").val();
 
-        $.post("http://localhost:3030/cadastro", dados, function(retorno){
-            
-            $("#msg-status").toast("show");
-            $("#modal-novo").modal("hide");
-            listar();
-            $("input").val("");
+        if (codigo)
+        {
+            dados.id = codigo;
 
-        }); // fim do post
+            $.post("http://localhost:3030/atualizar", dados, function(retorno){
+                $("#msg-status").toast("show");
+                $("#modal-novo").modal("hide");
+                listar();
+                $("input").val("");
+            })
+
+        } else
+        {
+            $.post("http://localhost:3030/cadastro", dados, function(retorno){
+                
+                $("#msg-status").toast("show");
+                $("#modal-novo").modal("hide");
+                listar();
+                $("input").val("");
+
+            }); // fim do post
+        }
 
     }); // fim do btsalvar
 
@@ -63,6 +81,23 @@ $(document).ready(function(){
 
         $("#modal-delete").modal("show");
     }); //fim btdel
+
+    $("#lista-alunos").on("click", ".bt-update", function(){
+        let cod = $(this).attr("codigo");
+        $("#codigo").val(cod);
+
+        $("#modal-novo").modal("show");
+
+        $.getJSON("http://localhost:3030/ler", {id: cod} ,function(dados){
+            
+            $("#nome").val(dados.nome);
+            $("#telefone").val(dados.telefone);
+            $("#email").val(dados.email);
+            $("#cidade").val(dados.cidade);
+            $("#idade").val(dados.idade);
+
+        });
+    }); // fim bt-update
 
     $("#bt-confirma-del").click(function(){
 
@@ -74,6 +109,11 @@ $(document).ready(function(){
             $("#modal-delete").modal("hide");
             listar();
         });
+
+        // $.post("http://localhost:3030/delete", aluno, (retorno) => {
+        //     $("#modal-delete").modal("hide");
+        //     listar();
+        // });
 
     }); //fim bt-confirma-del
 
